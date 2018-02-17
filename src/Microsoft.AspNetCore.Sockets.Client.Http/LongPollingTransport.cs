@@ -121,10 +121,9 @@ namespace Microsoft.AspNetCore.Sockets.Client
                     }
                     else
                     {
-                        _logger.ReceivedMessages();
-
                         // TODO: Use CopyToAsync here
                         var payload = await response.Content.ReadAsByteArrayAsync();
+                        _logger.ReceivedMessages(payload.Length);
                         if (payload.Length > 0)
                         {
                             await _application.Output.WriteAsync(payload);

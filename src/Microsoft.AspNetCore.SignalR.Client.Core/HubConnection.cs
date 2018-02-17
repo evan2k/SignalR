@@ -139,6 +139,7 @@ namespace Microsoft.AspNetCore.SignalR.Client
             _connectionActive = new CancellationTokenSource();
             using (var memoryStream = new MemoryStream())
             {
+                _logger.LogDebug("Sending Hub Negotiation.");
                 NegotiationProtocol.WriteMessage(new NegotiationMessage(_protocol.Name), memoryStream);
                 await _connection.SendAsync(memoryStream.ToArray(), _connectionActive.Token);
             }
@@ -344,8 +345,10 @@ namespace Microsoft.AspNetCore.SignalR.Client
         private async Task OnDataReceivedAsync(byte[] data)
         {
             ResetTimeoutTimer();
+            _logger.LogDebug("Received {count} bytes. Parsing message(s).", data.Length);
             if (_protocolReaderWriter.ReadMessages(data, _binder, out var messages))
             {
+                _logger.LogDebug("Received {messageCount} messages", messages.Count);
                 foreach (var message in messages)
                 {
                     InvocationRequest irq;
@@ -375,12 +378,14 @@ namespace Microsoft.AspNetCore.SignalR.Client
                             DispatchInvocationStreamItemAsync(streamItem, irq);
                             break;
                         case PingMessage _:
+                            _logger.LogTrace("Received a ping message.");
                             // Nothing to do on receipt of a ping.
                             break;
                         default:
                             throw new InvalidOperationException($"Unexpected message type: {message.GetType().FullName}");
                     }
                 }
+                _logger.LogDebug("Finished processing {messageCount} messages.", messages.Count);
             }
         }
 

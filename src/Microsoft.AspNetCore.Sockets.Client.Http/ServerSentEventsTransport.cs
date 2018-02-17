@@ -104,11 +104,13 @@ namespace Microsoft.AspNetCore.Sockets.Client
 
                     try
                     {
+                        _logger.LogDebug("Received {count} bytes. Parsing SSE frame.", input.Length);
                         var parseResult = _parser.ParseMessage(input, out consumed, out examined, out var buffer);
 
                         switch (parseResult)
                         {
                             case ServerSentEventsMessageParser.ParseResult.Completed:
+                                _logger.LogDebug("Parsed message. Sending {count} bytes to application.", buffer.Length);
                                 await _application.Output.WriteAsync(buffer);
                                 _parser.Reset();
                                 break;

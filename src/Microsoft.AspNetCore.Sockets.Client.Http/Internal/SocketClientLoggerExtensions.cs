@@ -86,8 +86,8 @@ namespace Microsoft.AspNetCore.Sockets.Client.Internal
         private static readonly Action<ILogger, Exception> _closingConnection =
             LoggerMessage.Define(LogLevel.Debug, new EventId(14, nameof(ClosingConnection)), "The server is closing the connection.");
 
-        private static readonly Action<ILogger, Exception> _receivedMessages =
-            LoggerMessage.Define(LogLevel.Debug, new EventId(15, nameof(ReceivedMessages)), "Received messages from the server.");
+        private static readonly Action<ILogger, int, Exception> _receivedMessages =
+            LoggerMessage.Define<int>(LogLevel.Debug, new EventId(15, nameof(ReceivedMessages)), "Received {count} bytes from the server.");
 
         private static readonly Action<ILogger, Uri, Exception> _errorPolling =
             LoggerMessage.Define<Uri>(LogLevel.Error, new EventId(16, nameof(ErrorPolling)), "Error while polling '{pollUrl}'.");
@@ -291,9 +291,9 @@ namespace Microsoft.AspNetCore.Sockets.Client.Internal
             _closingConnection(logger, null);
         }
 
-        public static void ReceivedMessages(this ILogger logger)
+        public static void ReceivedMessages(this ILogger logger, int count)
         {
-            _receivedMessages(logger, null);
+            _receivedMessages(logger, count, null);
         }
 
         public static void ErrorPolling(this ILogger logger, Uri pollUrl, Exception exception)
